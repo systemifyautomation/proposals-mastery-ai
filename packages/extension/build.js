@@ -40,11 +40,13 @@ if (!fs.existsSync(iconsDir)) {
 // Create simple placeholder icon files (SVG as PNG would require dependencies)
 // For now, we'll just create empty files - users should replace with actual icons
 const iconSizes = [16, 48, 128];
+// Minimal 1x1 transparent PNG as base64
+const PLACEHOLDER_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
 iconSizes.forEach(size => {
   const iconPath = path.join(iconsDir, `icon${size}.png`);
   if (!fs.existsSync(iconPath)) {
-    // Create a minimal 1x1 transparent PNG
-    const buffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+    const buffer = Buffer.from(PLACEHOLDER_PNG_BASE64, 'base64');
     fs.writeFileSync(iconPath, buffer);
     console.log(`✓ Created placeholder icon${size}.png`);
   }

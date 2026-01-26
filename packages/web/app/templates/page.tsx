@@ -24,6 +24,7 @@ export default function TemplatesPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: '', content: '' })
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCreate = () => {
     if (formData.name && formData.content) {
@@ -202,10 +203,15 @@ export default function TemplatesPage() {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(template.content)
-                        alert('Template copied to clipboard!')
+                        setCopiedId(template.id)
+                        setTimeout(() => setCopiedId(null), 2000)
                       }}
-                      className="p-2 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
-                      title="Copy template"
+                      className={`p-2 rounded-lg transition-colors ${
+                        copiedId === template.id
+                          ? 'bg-upwork-green text-white'
+                          : 'text-blue-600 hover:bg-blue-600 hover:text-white'
+                      }`}
+                      title={copiedId === template.id ? 'Copied!' : 'Copy template'}
                     >
                       <Copy className="w-5 h-5" />
                     </button>

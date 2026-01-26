@@ -135,7 +135,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       }, 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
-      alert('Failed to copy to clipboard');
+      copyBtn.textContent = '✗ Failed to copy';
+      copyBtn.style.backgroundColor = '#d32f2f';
+      copyBtn.style.color = 'white';
+      
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy to Clipboard';
+        copyBtn.style.backgroundColor = '';
+        copyBtn.style.color = '';
+      }, 2000);
     }
   });
 });
