@@ -5,7 +5,8 @@
   "description": "Analyze Upwork job descriptions and generate winning cover letters using your templates",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
     "https://www.upwork.com/*"
@@ -25,7 +26,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.upwork.com/jobs/*"],
+      "matches": ["https://www.upwork.com/nx/proposals/job/*/apply/*"],
       "js": ["content.js"],
       "css": ["content.css"]
     }

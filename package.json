@@ -1,16 +1,14 @@
 {
-  "name": "proposals-mastery-ai",
+  "name": "proposals-mastery-ai-extension",
   "version": "0.1.0",
   "private": true,
+  "description": "Chrome extension for auto-generating Upwork cover letters",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=packages/web",
-    "build": "npm run build --workspace=packages/web",
-    "start": "npm run start --workspace=packages/web",
-    "lint": "npm run lint --workspace=packages/web",
-    "build:extension": "npm run build --workspace=packages/extension"
+    "build": "npm run build --workspace=packages/extension",
+    "dev": "npm run build --workspace=packages/extension"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

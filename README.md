@@ -1,32 +1,30 @@
-# Proposals Mastery AI
+# Proposals Mastery AI - Chrome Extension
 
-A platform for creating winning Upwork proposals with AI-powered templates and a browser extension.
+A Chrome browser extension for automatically generating and filling cover letters on Upwork application pages.
 
 ## Features
 
-### 🌐 Web Application
-- **Proposal Templates**: Create and manage reusable proposal templates with dynamic placeholders
-- **Profile Management**: Set up your freelancer or agency information (or both)
-- **Upwork-Themed UI**: Clean, professional interface using Upwork's black, white, and green color scheme
-
 ### 🔧 Browser Extension
-- **Job Analysis**: Automatically extract job details from Upwork job postings
-- **Cover Letter Generation**: Generate customized cover letters using your templates
-- **One-Click Application**: Streamline your Upwork proposal process
+- **Auto-Fill Cover Letters**: Automatically fills the cover letter field on Upwork application pages
+- **Template System**: Use customizable templates with placeholders
+- **Job Detail Extraction**: Automatically extracts job information from the application page
+- **One-Click Generation**: Generate and fill cover letters with a single click
 
 ## Project Structure
 
 ```
 proposals-mastery-ai/
 ├── packages/
-│   ├── web/              # Next.js web application
-│   │   ├── app/          # App router pages
-│   │   ├── components/   # React components
-│   │   └── public/       # Static assets
-│   ├── extension/        # Chrome browser extension
-│   │   ├── src/          # Extension source files
-│   │   └── dist/         # Built extension (generated)
-│   └── shared/           # Shared utilities (future)
+│   └── extension/        # Chrome browser extension
+│       ├── src/          # Extension source files
+│       │   ├── background.js
+│       │   ├── content.js
+│       │   ├── content.css
+│       │   └── popup.js
+│       ├── dist/         # Built extension (generated)
+│       ├── manifest.json
+│       ├── popup.html
+│       └── build.js
 └── package.json          # Monorepo configuration
 ```
 
@@ -34,6 +32,9 @@ proposals-mastery-ai/
 
 ### Prerequisites
 - Node.js 18+ and npm
+- Chrome or Edge browser
+
+### Installation
 
 ### Installation
 
@@ -43,12 +44,91 @@ git clone https://github.com/systemifyautomation/proposals-mastery-ai.git
 cd proposals-mastery-ai
 ```
 
-2. Install dependencies:
+2. Install dependencies and build:
 ```bash
 npm install
-cd packages/web && npm install
-cd ../extension && npm install
+npm run build
 ```
+
+3. Load the extension in Chrome/Edge:
+   - Open `chrome://extensions/`
+   - Turn on "Developer mode" (top-right toggle)
+   - Click "Load unpacked"
+   - Select the `packages/extension/dist/` folder
+
+## How to Use
+
+### 1. Prepare Your Templates
+
+The extension comes with a default template system. You can customize templates by modifying the storage or creating your own management system.
+
+### 2. Using the Extension
+
+1. **Go to an Upwork job application page**:
+   - URL format: `https://www.upwork.com/nx/proposals/job/~{ID}/apply/`
+
+2. **Click the green floating "AI Generate & Fill" button** that appears on the page
+
+3. The extension will:
+   - Extract job details from the page
+   - Generate a customized cover letter using your template
+   - **Automatically fill the cover letter field**
+
+4. Review and submit your proposal!
+
+## Available Placeholders
+
+Templates support the following placeholders:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{{JOB_TITLE}}` | Job title extracted from Upwork |
+| `{{JOB_DESCRIPTION}}` | Job description |
+| `{{SKILLS}}` | Required skills |
+| `{{NAME}}` | Your name |
+| `{{TITLE}}` | Your professional title |
+| `{{YEARS_EXPERIENCE}}` | Years of experience |
+| `{{BIO}}` | Your bio |
+| `{{PROJECTS}}` | List of projects |
+| `{{ACHIEVEMENTS}}` | List of achievements |
+| `{{PORTFOLIO}}` | Portfolio URL |
+
+## Development
+
+### Building the Extension
+
+```bash
+cd packages/extension
+npm run build
+```
+
+The built extension will be in `packages/extension/dist/`
+
+### Project Structure
+
+```
+extension/
+├── src/
+│   ├── background.js    # Service worker
+│   ├── content.js       # Runs on Upwork application pages
+│   ├── content.css      # Styles for content script
+│   └── popup.js         # Extension popup interface
+├── dist/                # Built extension (generated)
+├── manifest.json        # Extension manifest
+├── popup.html          # Popup UI
+└── build.js            # Build script
+```
+
+## Future Enhancements
+
+- Web app for template and profile management (planned for separate branch)
+- Cloud sync for templates
+- AI-powered template suggestions
+- Analytics and success tracking
+
+## License
+
+MIT
 
 ### Running the Web Application
 

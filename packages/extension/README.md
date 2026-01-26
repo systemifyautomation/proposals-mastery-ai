@@ -1,17 +1,15 @@
-# Proposals Mastery AI - Browser Extension
+# Proposals Mastery AI - Chrome Extension
 
-Chrome browser extension for analyzing Upwork job postings and generating cover letters using your templates.
+Chrome browser extension for automatically generating and filling cover letters on Upwork application pages.
 
 ## Features
 
-- **Job Analysis**: Automatically extracts job details from Upwork job postings
-- **Template Selection**: Choose from your saved templates
-- **Cover Letter Generation**: Generate customized cover letters with one click
-- **Upwork Theme**: Matches Upwork's visual design (black, white, green)
+- ✅ **Auto-Fill Cover Letters**: Automatically fills the cover letter field on Upwork
+- ✅ **Template System**: Built-in customizable templates
+- ✅ **Job Detail Extraction**: Extracts job info from application pages
+- ✅ **One-Click Operation**: Generate and fill with a single click
 
 ## Installation
-
-### For Development
 
 1. Build the extension:
    ```bash
@@ -25,19 +23,45 @@ Chrome browser extension for analyzing Upwork job postings and generating cover 
    - Click "Load unpacked"
    - Select the `dist/` directory
 
-### For Production
-
-1. Download the latest release from the releases page
-2. Follow the same steps as above to load the unpacked extension
-
 ## Usage
 
-1. **Navigate to Upwork**: Go to any job posting on Upwork.com
-2. **Analyze Job**: Click the floating "Generate Cover Letter" button on the page
-3. **Open Extension**: Click the extension icon in your toolbar
-4. **Select Template**: Choose a template from your library
-5. **Generate**: Click "Generate Cover Letter" to create a customized proposal
-6. **Copy**: Copy the generated letter and paste it into your Upwork proposal
+1. **Select a Template**: Click the extension icon and choose a template
+2. **Go to Upwork**: Navigate to a job application page (`/nx/proposals/job/*/apply/`)
+3. **Click the Button**: Click the green "AI Generate & Fill" floating button
+4. **Submit**: Review the generated cover letter and submit!
+
+## Templates
+
+The extension includes 2 default templates:
+- **Professional Template**: General purpose, formal tone
+- **Technical Template**: For technical/development jobs
+
+Templates support these placeholders:
+- `{{JOB_TITLE}}` - Extracted from Upwork
+- `{{JOB_DESCRIPTION}}` - Extracted from Upwork  
+- `{{SKILLS}}` - Extracted from Upwork
+- `{{NAME}}` - Your name
+- `{{TITLE}}` - Your professional title
+- `{{YEARS_EXPERIENCE}}` - Years of experience
+- `{{BIO}}` - Your bio
+- `{{PROJECTS}}` - Your projects
+- `{{ACHIEVEMENTS}}` - Your achievements
+- `{{PORTFOLIO}}` - Your portfolio URL
+
+## Customization
+
+You can customize templates by modifying the code in `src/popup.js` or by building your own template management system.
+
+## Development
+
+## Development
+
+```bash
+npm install
+npm run build
+```
+
+The built extension will be in the `dist/` directory.
 
 ## Project Structure
 
@@ -45,9 +69,44 @@ Chrome browser extension for analyzing Upwork job postings and generating cover 
 extension/
 ├── src/
 │   ├── background.js    # Service worker
-│   ├── content.js       # Content script (runs on Upwork pages)
-│   ├── content.css      # Styles for content script
-│   └── popup.js         # Popup interface logic
+│   ├── content.js       # Runs on Upwork pages, handles auto-fill
+│   ├── content.css      # Floating button styles
+│   └── popup.js         # Template selection popup
+├── dist/                # Built extension (auto-generated)
+├── manifest.json        # Extension configuration
+├── popup.html          # Popup UI
+└── build.js            # Build script
+```
+
+## How It Works
+
+1. **Content Script** (`content.js`) runs on Upwork application pages
+2. Adds a floating "AI Generate & Fill" button
+3. When clicked, extracts job details from the page
+4. Loads your selected template from Chrome storage
+5. Replaces placeholders with job details and your profile data
+6. Automatically fills the cover letter textarea
+
+## Troubleshooting
+
+**Button doesn't appear:**
+- Make sure you're on `/nx/proposals/job/*/apply/` URL
+- Refresh the page
+
+**Cover letter field not filling:**
+- Upwork may have changed their UI
+- Check browser console for errors
+
+**Template not loading:**
+- Make sure you selected a template in the popup
+- Check Chrome storage in DevTools
+
+## Future Enhancements
+
+- Web-based template editor (planned)
+- Cloud sync
+- AI-powered suggestions
+- Success analytics
 ├── popup.html           # Popup UI
 ├── manifest.json        # Extension manifest (Manifest V3)
 ├── build.js            # Build script

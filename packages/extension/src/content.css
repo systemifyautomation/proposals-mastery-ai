@@ -1,5 +1,5 @@
 /* Floating button styles */
-.proposals-mastery-analyze-btn {
+.proposals-mastery-generate-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -19,16 +19,22 @@
   transition: all 0.3s ease;
 }
 
-.proposals-mastery-analyze-btn:hover {
+.proposals-mastery-generate-btn:hover:not(:disabled) {
   background-color: #108a00;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(20, 168, 0, 0.4);
 }
 
-.proposals-mastery-analyze-btn:active {
+.proposals-mastery-generate-btn:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.proposals-mastery-analyze-btn svg {
+.proposals-mastery-generate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.proposals-mastery-generate-btn svg {
   flex-shrink: 0;
 }
+
