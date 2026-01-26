@@ -1,0 +1,19 @@
+{
+  "name": "proposals-mastery-ai",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/web",
+    "build": "npm run build --workspace=packages/web",
+    "start": "npm run start --workspace=packages/web",
+    "lint": "npm run lint --workspace=packages/web",
+    "build:extension": "npm run build --workspace=packages/extension"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
