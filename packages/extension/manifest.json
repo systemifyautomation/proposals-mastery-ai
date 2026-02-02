@@ -6,11 +6,21 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "identity",
+    "downloads",
+    "nativeMessaging"
   ],
   "host_permissions": [
-    "https://www.upwork.com/*"
+    "https://www.upwork.com/*",
+    "https://www.googleapis.com/*"
   ],
+  "oauth2": {
+    "client_id": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube.upload"
+    ]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -24,11 +34,14 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "options_page": "settings.html",
   "content_scripts": [
     {
-      "matches": ["https://www.upwork.com/nx/proposals/job/*/apply/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["content.css"]
+      "css": ["content.css"],
+      "all_frames": false,
+      "run_at": "document_end"
     }
   ],
   "background": {

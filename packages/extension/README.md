@@ -4,14 +4,23 @@ Chrome browser extension for automatically generating and filling cover letters 
 
 ## Features
 
-- ✅ **Auto-Fill Cover Letters**: Automatically fills the cover letter field on Upwork
+- ✅ **Auto-Fill Cover Letters**: Fill cover letters from the extension popup
 - ✅ **Template System**: Built-in customizable templates
 - ✅ **Job Detail Extraction**: Extracts job info from application pages
-- ✅ **One-Click Operation**: Generate and fill with a single click
+- ✅ **Screen Recording**: Record your screen while working
+- ✅ **YouTube Upload**: Upload recordings as unlisted videos to your YouTube account
+- ✅ **One-Click Operation**: Generate and fill from the popup
 
 ## Installation
 
-1. Build the extension:
+1. **Setup YouTube API** (optional, for recording feature):
+2. Build the extension:
+   ```bash
+   npm install
+   npm run build
+   ```
+
+3. Build the extension:
    ```bash
    npm install
    npm run build
@@ -26,8 +35,10 @@ Chrome browser extension for automatically generating and filling cover letters 
 ## Usage
 
 1. **Select a Template**: Click the extension icon and choose a template
-2. **Go to Upwork**: Navigate to a job application page (`/nx/proposals/job/*/apply/`)
-3. **Click the Button**: Click the green "AI Generate & Fill" floating button
+2. **Fill Cover Letter**: Click "Generate & Auto-Fill" in the extension popup
+4. **Record (Optional)**: Use the recording feature to capture your screen
+5. **Upload to YouTube**: Upload recordings as unlisted videos
+6. **Click the Button**: Click the green "AI Generate & Fill" floating button
 4. **Submit**: Review the generated cover letter and submit!
 
 ## Templates
@@ -78,25 +89,28 @@ extension/
 └── build.js            # Build script
 ```
 
-## How It Works
-
-1. **Content Script** (`content.js`) runs on Upwork application pages
-2. Adds a floating "AI Generate & Fill" button
-3. When clicked, extracts job details from the page
+## User clicks extension icon and selects a template
+3. User clicks "Generate & Auto-Fill" button in popup
+4. Extension extracts job details from the page
+5. Loads selected template and replaces placeholders
+6. Automatically fills the cover letter textarea
+7. Optional: User can record screen and upload to YouTube as unlisted videoage
 4. Loads your selected template from Chrome storage
 5. Replaces placeholders with job details and your profile data
 6. Automatically fills the cover letter textarea
-
-## Troubleshooting
-
-**Button doesn't appear:**
+Cover letter doesn't fill:**
 - Make sure you're on `/nx/proposals/job/*/apply/` URL
-- Refresh the page
-
-**Cover letter field not filling:**
-- Upwork may have changed their UI
+- Select a template in the popup first
 - Check browser console for errors
 
+**Recording fails:**
+- Grant screen recording permissions when prompted
+- Refresh the page and try again
+
+**YouTube upload fails:**
+- Verify OAuth credentials in manifest.json
+- Make sure YouTube Data API v3 is enabled
+- Check that you authorized the extension
 **Template not loading:**
 - Make sure you selected a template in the popup
 - Check Chrome storage in DevTools

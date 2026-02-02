@@ -11,7 +11,10 @@ if (!fs.existsSync(distDir)) {
 const filesToCopy = [
   { src: 'manifest.json', dest: 'manifest.json' },
   { src: 'popup.html', dest: 'popup.html' },
+  { src: 'settings.html', dest: 'settings.html' },
   { src: 'src/popup.js', dest: 'popup.js' },
+  { src: 'src/settings.js', dest: 'settings.js' },
+  { src: 'src/storage.js', dest: 'storage.js' },
   { src: 'src/content.js', dest: 'content.js' },
   { src: 'src/content.css', dest: 'content.css' },
   { src: 'src/background.js', dest: 'background.js' },

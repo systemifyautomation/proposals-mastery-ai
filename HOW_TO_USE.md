@@ -16,41 +16,66 @@ Then load in Chrome/Edge:
 3. Click **"Load unpacked"**
 4. Select `packages/extension/dist/` folder
 
-### 2. Configure Your Template
+### 2. Configure YouTube API (Optional)
 
-Open the extension popup and select a template. The extension includes a default template that you can customize.
+For the video recording feature:
 
-### 3. Apply to Upwork Jobs
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable YouTube Data API v3
+3. Create OAuth 2.0 credentials
+4. Copy your Client ID
+5. Edit `packages/extension/manifest.json` and replace `YOUR_GOOGLE_CLIENT_ID`
 
-1. Go to an Upwork job application page:
+### 3. Select a Template
+
+Open the extension popup and select a template from the dropdown.
+
+### 4. Apply to Upwork Jobs
+
+1. Navigate to an Upwork job application page:
    - URL format: `https://www.upwork.com/nx/proposals/job/~{ID}/apply/`
 
-2. You'll see a **green floating button** that says **"AI Generate & Fill"**
+2. Click the **extension icon** in your toolbar
 
-3. Click the button to automatically generate and fill your cover letter
+3. Click **"Generate & Auto-Fill"** to fill the cover letter automatically
 
 4. Review and submit!
+
+### 5. Record and Upload (Optional)
+
+While on the application page:
+
+1. Click the extension icon
+2. Click **"Start Recording"** to begin screen recording
+3. Click **"Stop Recording"** when done
+4. Click **"Upload to YouTube"** to upload as an unlisted video
+5. The video will be uploaded to your YouTube account
 
 ## How It Works
 
 ```
 ┌─────────────────────┐
-│  1. Go to Upwork    │
-│  application page   │
+│  1. Open Extension  │
+│  on Upwork page     │
 └──────────┬──────────┘
            │
            ▼
 ┌─────────────────────┐
-│  2. Click green     │
-│  "AI Generate"      │
-│  floating button    │
+│  2. Select template │
+│  & click "Fill"     │
 └──────────┬──────────┘
            │
            ▼
 ┌─────────────────────┐
 │  3. Cover letter    │
 │  auto-fills!        │
-│  Review & submit    │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  4. Optional:       │
+│  Record & Upload    │
+│  to YouTube         │
 └─────────────────────┘
 ```
 
@@ -77,19 +102,19 @@ You can modify templates by editing the extension's storage or by building a cus
 
 ## Troubleshooting
 
-### Extension button doesn't appear
+### Extension doesn't fill the cover letter
 - Make sure you're on a URL like `/nx/proposals/job/*/apply/`
-- Refresh the page after loading the extension
+- Make sure you selected a template in the popup
+- Refresh the page and try again
 
-### "Could not find cover letter field"
-- Upwork may have changed their layout
-- The extension tries multiple selectors to find the textarea
+### Recording doesn't start
+- Make sure you grant screen recording permissions when prompted
 - Try refreshing the page
 
-### Cover letter not filling correctly
-- Check that your template has the correct placeholders
-- Make sure you selected a template in the extension popup
-- Try refreshing the Upwork page
+### YouTube upload fails
+- Verify your Google OAuth credentials are configured correctly
+- Make sure you authorized the extension to access your YouTube account
+- Check that the YouTube Data API v3 is enabled in your Google Cloud project
 
 ## Development
 

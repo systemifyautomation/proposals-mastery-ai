@@ -12,7 +12,8 @@
     }
 
     body {
-      width: 380px;
+      width: 400px;
+      min-height: 500px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #f9f9f9;
     }
@@ -60,7 +61,6 @@
       border: 2px solid #d4d4d4;
       border-radius: 6px;
       font-size: 13px;
-      margin-bottom: 12px;
       background-color: white;
       cursor: pointer;
     }
@@ -97,7 +97,7 @@
       border: 1px solid #d4d4d4;
     }
 
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
       background-color: #e0e0e0;
     }
 
@@ -136,13 +136,12 @@
     .instructions {
       font-size: 12px;
       color: #6e6e6e;
-      line-height: 1.5;
-      margin-bottom: 12px;
+      line-height: 1.6;
     }
 
     .instructions ol {
       margin-left: 20px;
-      margin-top: 8px;
+      margin-top: 4px;
     }
 
     .instructions li {
@@ -154,12 +153,114 @@
       background-color: #e0e0e0;
       margin: 16px 0;
     }
+
+    .recording-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .recording-controls .btn {
+      margin-bottom: 0;
+    }
+
+    #recording-status {
+      margin-top: 12px;
+      padding: 8px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 1000;
+      max-width: 250px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .tooltip.show {
+      opacity: 1;
+    }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+
+    .tooltip.error {
+      background-color: #c62828;
+    }
+
+    .tooltip.error::after {
+      border-color: #c62828 transparent transparent transparent;
+    }
+
+    .settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .settings-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .header {
+      position: relative;
+    }
+
+    .video-link {
+      display: block;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      background-color: #f5f5f5;
+      border: 1px solid #d4d4d4;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #001e00;
+      font-size: 12px;
+      transition: background-color 0.2s;
+    }
+
+    .video-link:hover {
+      background-color: #e8f5e9;
+      border-color: #14a800;
+    }
+
+    .video-link::before {
+      content: '🔗 ';
+      margin-right: 4px;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Proposals Mastery AI</h1>
     <p>Chrome Extension</p>
+    <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
   </div>
 
   <div class="content">
@@ -172,128 +273,41 @@
       </select>
     </div>
 
+    <button id="fill-btn" class="btn btn-primary">✨ Generate & Auto-Fill</button>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <h2>🎥 Record & Upload to YouTube</h2>
+      <div class="recording-controls">
+        <button id="start-record-btn" class="btn btn-secondary">▶ Start Recording</button>
+        <button id="upload-youtube-btn" class="btn btn-primary" disabled>📤 Upload to YouTube</button>
+      </div>
+      <div id="recording-status" style="display: none;"></div>
+      <div id="video-links" style="display: none; margin-top: 12px;">
+        <div style="font-size: 12px; color: #6e6e6e; margin-bottom: 8px;">📹 Your Recordings:</div>
+        <div id="links-container"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
     <div class="section">
       <h2>🚀 How to Use</h2>
       <div class="instructions">
         <ol>
           <li>Select a template above</li>
           <li>Go to an Upwork job application page</li>
-          <li>Click the green "AI Generate & Fill" button</li>
-          <li>Review and submit your proposal!</li>
+          <li>Click "Generate & Auto-Fill" to fill the cover letter</li>
+          <li>Optional: Record your screen and upload to YouTube</li>
         </ol>
       </div>
     </div>
   </div>
 
-  <script src="src/popup.js"></script>
-</body>
-</html>
+  <div id="tooltip" class="tooltip"></div>
 
-    .btn-primary:hover {
-      background-color: #108a00;
-    }
-
-    .btn-primary:disabled {
-      background-color: #d4d4d4;
-      cursor: not-allowed;
-    }
-
-    .generated-letter {
-      background-color: #f5f5f5;
-      border: 1px solid #d4d4d4;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 12px;
-      line-height: 1.6;
-      color: #1f1f1f;
-      max-height: 300px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      margin-bottom: 12px;
-    }
-
-    .btn-secondary {
-      background-color: #e0e0e0;
-      color: #1f1f1f;
-      margin-top: 8px;
-    }
-
-    .btn-secondary:hover {
-      background-color: #d4d4d4;
-    }
-
-    .no-job {
-      text-align: center;
-      padding: 32px 16px;
-      color: #6e6e6e;
-    }
-
-    .no-job svg {
-      margin: 0 auto 12px;
-      opacity: 0.5;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #6e6e6e;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>Proposals Mastery AI</h1>
-    <p>Generate winning cover letters for Upwork</p>
-  </div>
-
-  <div class="content">
-    <div id="loading" class="loading" style="display: none;">
-      <p>Loading...</p>
-    </div>
-
-    <div id="no-job" class="no-job" style="display: none;">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-      </svg>
-      <p>Navigate to an Upwork job posting to analyze it.</p>
-    </div>
-
-    <div id="job-details" style="display: none;">
-      <div class="section">
-        <h2>Job Details</h2>
-        <div class="job-info">
-          <strong>Title:</strong>
-          <span id="job-title">-</span>
-        </div>
-        <div class="job-info">
-          <strong>Description Preview:</strong>
-          <span id="job-description">-</span>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Select Template</h2>
-        <select id="template-select" class="template-select">
-          <option value="">Choose a template...</option>
-        </select>
-        <button id="generate-btn" class="btn btn-primary" disabled>
-          Generate Cover Letter
-        </button>
-      </div>
-
-      <div id="result-section" style="display: none;">
-        <div class="section">
-          <h2>Generated Cover Letter</h2>
-          <div id="generated-letter" class="generated-letter"></div>
-          <button id="copy-btn" class="btn btn-secondary">
-            Copy to Clipboard
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <script src="storage.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

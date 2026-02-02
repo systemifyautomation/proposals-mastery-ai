@@ -1,31 +1,155 @@
 # Proposals Mastery AI - Chrome Extension
 
-A Chrome browser extension for automatically generating and filling cover letters on Upwork application pages.
+A powerful Chrome extension for automating Upwork proposals and recording your application process with flexible storage options.
 
-## Features
+## ✨ Features
 
-### 🔧 Browser Extension
-- **Auto-Fill Cover Letters**: Automatically fills the cover letter field on Upwork application pages
-- **Template System**: Use customizable templates with placeholders
-- **Job Detail Extraction**: Automatically extracts job information from the application page
-- **One-Click Generation**: Generate and fill cover letters with a single click
+### 🤖 Smart Cover Letter Generation
+- **Auto-Fill on Upwork**: Automatically fill cover letters on Upwork application pages
+- **Customizable Templates**: Create, edit, and manage multiple cover letter templates
+- **Smart Placeholders**: Use dynamic placeholders like {{JOB_TITLE}}, {{NAME}}, {{BIO}}
+- **Job Detail Extraction**: Automatically extracts job information from the page
 
-## Project Structure
+### 📹 Screen Recording
+- **One-Click Recording**: Record your screen with a single click
+- **Flexible Storage Options**:
+  - **Local Download**: Save recordings to your computer
+  - **YouTube Upload**: Upload as unlisted videos to your YouTube account
+  - **Both**: Download locally AND upload to YouTube
+- **Privacy-First**: You control where your recordings go
+
+### ⚙️ Powerful Settings
+- **Onboarding Wizard**: Easy first-time setup experience
+- **Template Manager**: Add, edit, and delete templates with a beautiful UI
+- **Storage Preferences**: Choose how you want to save your recordings
+- **YouTube Integration**: Optional YouTube upload with your own OAuth credentials
+
+## 🚀 Quick Start
+
+### Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/proposals-mastery-ai.git
+   cd proposals-mastery-ai/packages/extension
+   ```
+
+2. Install dependencies and build:
+   ```bash
+   npm install
+   npm run build
+   ```
+
+3. Load in Chrome:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `dist` folder
+
+### First-Time Setup
+
+When you first open the extension, you'll see the onboarding screen:
+
+1. **Choose Storage Location**:
+   - Local Download (saves to your computer)
+   - YouTube Upload (uploads as unlisted videos)
+   - Both (downloads + uploads)
+
+2. **Configure Templates**:
+   - Use default templates or create your own
+   - Add/edit/delete templates anytime
+
+3. **YouTube Setup** (optional):
+   - Only needed if you selected YouTube storage
+   - Follow the in-app guide to set up Google OAuth
+   - See `YOUTUBE_SETUP.md` for detailed instructions
+
+## 📖 How to Use
+
+### Generating Cover Letters
+
+1. Navigate to an Upwork job application page
+2. Click the extension icon in your browser
+3. Select a template from the dropdown
+4. Click "✨ Generate & Auto-Fill"
+5. Your cover letter is automatically filled!
+
+### Recording Your Screen
+
+1. Click the extension icon
+2. Click "🔴 Start Recording"
+3. Select the screen/window to record
+4. Complete your application
+5. Click "⏹ Stop Recording"
+6. Based on your settings:
+   - **Local**: Video downloads automatically as `.webm`
+   - **YouTube**: Click "📤 Upload to YouTube"
+   - **Both**: Downloads automatically + upload button available
+
+### Managing Settings
+
+Click the **⚙️ Settings** icon in the extension popup to:
+
+- Change recording storage preferences
+- Add new cover letter templates
+- Edit existing templates
+- Delete unwanted templates
+- Update YouTube credentials
+- Customize all settings
+
+## 🎯 Template Placeholders
+
+Use these placeholders in your templates for dynamic content:
+
+| Placeholder | Description |
+|------------|-------------|
+| `{{JOB_TITLE}}` | The job title from Upwork |
+| `{{JOB_DESCRIPTION}}` | Full job description |
+| `{{SKILLS}}` | Required skills (comma-separated) |
+| `{{NAME}}` | Your name |
+| `{{TITLE}}` | Your professional title |
+| `{{YEARS_EXPERIENCE}}` | Years of experience |
+| `{{PORTFOLIO}}` | Your portfolio URL |
+| `{{BIO}}` | Your bio/description |
+| `{{PROJECTS}}` | Your project list |
+| `{{ACHIEVEMENTS}}` | Your achievements |
+
+### Example Template
+
+```
+Hello!
+
+I'm excited about {{JOB_TITLE}}. With {{YEARS_EXPERIENCE}} years of experience as a {{TITLE}}, I've successfully delivered projects for clients worldwide.
+
+{{BIO}}
+
+My relevant skills include: {{SKILLS}}
+
+Portfolio: {{PORTFOLIO}}
+
+I'd love to discuss how I can help with your project!
+
+Best regards,
+{{NAME}}
+```
+
+## 🔧 Project Structure
 
 ```
 proposals-mastery-ai/
 ├── packages/
-│   └── extension/        # Chrome browser extension
-│       ├── src/          # Extension source files
-│       │   ├── background.js
-│       │   ├── content.js
-│       │   ├── content.css
-│       │   └── popup.js
-│       ├── dist/         # Built extension (generated)
-│       ├── manifest.json
-│       ├── popup.html
-│       └── build.js
-└── package.json          # Monorepo configuration
+│   └── extension/        # Chrome extension
+│       ├── src/
+│       │   ├── background.js   # Service worker
+│       │   ├── content.js      # Upwork page integration
+│       │   ├── popup.js        # Extension popup logic
+│       │   └── settings.js     # Settings page logic
+│       ├── dist/              # Built extension
+│       ├── manifest.json      # Extension manifest
+│       ├── popup.html         # Popup UI
+│       ├── settings.html      # Settings page UI
+│       └── build.js           # Build script
+└── README.md
 ```
 
 ## Getting Started
@@ -58,13 +182,27 @@ npm run build
 
 ## How to Use
 
-### 1. Prepare Your Templates
+### 1. Setup YouTube API (Optional - for video recording feature)
 
-The extension comes with a default template system. You can customize templates by modifying the storage or creating your own management system.
+To use the YouTube upload feature, you need to:
 
-### 2. Using the Extension
+1. G3. Using the Extension
 
 1. **Go to an Upwork job application page**:
+   - URL format: `https://www.upwork.com/nx/proposals/job/~{ID}/apply/`
+
+2. **Click the extension icon** in your browser toolbar
+
+3. **Select a template** from the dropdown
+
+4. **Click "Generate & Auto-Fill"** to automatically fill the cover letter
+
+5. **Optional: Record and Upload**:
+   - Click "Start Recording" to record your screen
+   - Click "Stop Recording" when done
+   - Click "Upload to YouTube" to upload as unlisted video
+
+6. **Go to an Upwork job application page**:
    - URL format: `https://www.upwork.com/nx/proposals/job/~{ID}/apply/`
 
 2. **Click the green floating "AI Generate & Fill" button** that appears on the page

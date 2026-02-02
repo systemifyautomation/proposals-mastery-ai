@@ -1,0 +1,9 @@
+{
+  "name": "com.proposalsmastery.settings",
+  "description": "Persistent settings storage for Proposals Mastery AI",
+  "path": "settings_host.py",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://EXTENSION_ID_HERE/"
+  ]
+}
