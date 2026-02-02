@@ -1,4 +1,4 @@
-// Content script that runs on Upwork application pages
+// Content script that runs on all pages for recording and Upwork application page features
 console.log('Proposals Mastery AI: Content script loaded on application page');
 
 // Wait for the page to fully load and the cover letter field to be available
@@ -37,8 +37,12 @@ function extractJobDetails() {
 
   // Try multiple selectors for job title
   const titleSelectors = [
+    'h3[data-v-45c81e35]',  // Specific selector from user's example
     '[data-test="job-title"]',
+    'h3.h5',
     'h1',
+    'h2',
+    'h3',
     '.job-title',
     'h2[class*="title"]',
     '[class*="JobTitle"]'
@@ -54,6 +58,9 @@ function extractJobDetails() {
 
   // Try to find job description
   const descriptionSelectors = [
+    '#air3-truncation-1',  // New Upwork truncation format
+    '.description [id^="air3-truncation"]',  // Any air3-truncation ID
+    '.description.text-body-sm',
     '[data-test="Description"]',
     '[data-test="job-description"]',
     '.description',
@@ -75,6 +82,31 @@ function extractJobDetails() {
     .filter(Boolean);
 
   return jobDetails;
+}
+
+// Extract just the job title (simplified version)
+function extractJobTitle() {
+  const titleSelectors = [
+    'h3[data-v-45c81e35]',
+    '[data-test="job-title"]',
+    'h3.h5',
+    'h1',
+    'h2',
+    'h3',
+    '.job-title',
+    'h2[class*="title"]',
+    '[class*="JobTitle"]'
+  ];
+  
+  for (const selector of titleSelectors) {
+    const element = document.querySelector(selector);
+    if (element && element.textContent.trim()) {
+      return element.textContent.trim();
+    }
+  }
+  
+  // Fallback to page title if no heading found
+  return document.title || 'Screen Recording';
 }
 
 // Find and fill the cover letter textarea
@@ -203,15 +235,78 @@ async function generateAndFillCoverLetter() {
 }
 
 // Start screen recording
-async function startRecording() {
-  console.log('[Content] startRecording called');
+async function startRecording(mode = 'screen') {
+  console.log('[Content] startRecording called with mode:', mode);
   try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { mediaSource: 'screen' },
-      audio: true
-    });
+    let videoStream = null;
+    let audioStream = null;
     
-    console.log('[Content] Display media stream obtained');
+    // Get screen stream for screen and both modes
+    if (mode === 'screen' || mode === 'both') {
+      try {
+        videoStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { mediaSource: 'screen' },
+          audio: true
+        });
+        console.log('[Content] Screen stream obtained');
+      } catch (screenError) {
+        console.error('[Content] Screen capture error:', screenError);
+        console.error('[Content] Error name:', screenError.name);
+        console.error('[Content] Error message:', screenError.message);
+        
+        // Check if user cancelled
+        if (screenError.name === 'NotAllowedError' || screenError.message.includes('denied')) {
+          return { success: false, error: 'Screen recording permission denied or cancelled by user' };
+        }
+        throw screenError;
+      }
+    }
+    
+    // Get camera stream for camera and both modes
+    if (mode === 'camera' || mode === 'both') {
+      try {
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: mode === 'camera' // Only use camera audio if camera-only
+        });
+        console.log('[Content] Camera stream obtained');
+        
+        // Save camera state to storage so other tabs can show overlay
+        await chrome.storage.local.set({ 
+          cameraActive: true,
+          recordingMode: mode
+        });
+        
+        if (mode === 'both') {
+          // Create camera overlay for "both" mode
+          createCameraOverlay(cameraStream);
+          
+          // Notify other tabs to show camera overlay
+          chrome.runtime.sendMessage({ 
+            action: 'showCameraOnAllTabs',
+            mode: mode
+          });
+        } else {
+          // Camera-only mode
+          videoStream = cameraStream;
+        }
+      } catch (cameraError) {
+        console.error('[Content] Camera error:', cameraError);
+        console.error('[Content] Error name:', cameraError.name);
+        console.error('[Content] Error message:', cameraError.message);
+        
+        // Check if user cancelled or denied permission
+        if (cameraError.name === 'NotAllowedError' || cameraError.message.includes('denied')) {
+          return { success: false, error: 'Camera permission denied or cancelled by user' };
+        }
+        throw cameraError;
+      }
+    }
+    
+    if (!videoStream) {
+      throw new Error('Failed to obtain video stream');
+    }
+    
     recordedChunks = [];
     
     // Find supported MIME type
@@ -232,8 +327,8 @@ async function startRecording() {
     }
     
     mediaRecorder = mimeType 
-      ? new MediaRecorder(stream, { mimeType })
-      : new MediaRecorder(stream);
+      ? new MediaRecorder(videoStream, { mimeType })
+      : new MediaRecorder(videoStream);
     
     mediaRecorder.ondataavailable = (event) => {
       console.log('[Content] Data available, size:', event.data.size);
@@ -242,16 +337,50 @@ async function startRecording() {
       }
     };
     
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
       console.log('[Content] MediaRecorder stopped by user (browser button)');
+      
+      // Immediately remove camera overlay and clear active state
+      chrome.storage.local.set({ cameraActive: false });
+      removeCameraOverlay();
+      console.log('[Content] Camera overlay removed immediately after recording stopped');
       
       // Create blob from chunks
       const blob = new Blob(recordedChunks, { type: 'video/webm' });
       recordedVideoBlob = blob;
-      console.log('[Content] Video blob saved, size:', blob.size);
+      console.log('[Content] Video blob created, size:', blob.size);
+      
+      // Upload directly to YouTube instead of storing locally
+      try {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const videoData = reader.result;
+          console.log('[Content] Video converted to data URL, uploading to YouTube...');
+          
+          // Get video title from page
+          const title = extractJobTitle() || 'Screen Recording - ' + new Date().toISOString();
+          
+          // Send directly to background script for YouTube upload
+          chrome.runtime.sendMessage({
+            action: 'uploadToYouTube',
+            videoData: videoData,
+            videoTitle: title,
+            timestamp: Date.now()
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error('[Content] Error starting upload:', chrome.runtime.lastError);
+            } else {
+              console.log('[Content] Upload started, will clean up camera overlay when complete');
+            }
+          });
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('[Content] Error converting/uploading video:', error);
+      }
       
       // Clean up stream
-      stream.getTracks().forEach(track => track.stop());
+      videoStream.getTracks().forEach(track => track.stop());
     };
     
     mediaRecorder.start();
@@ -259,7 +388,226 @@ async function startRecording() {
     return { success: true, message: 'Recording started' };
   } catch (error) {
     console.error('[Content] Error starting recording:', error);
-    return { success: false, error: error.message };
+    console.error('[Content] Error name:', error.name);
+    console.error('[Content] Error message:', error.message);
+    console.error('[Content] Error stack:', error.stack);
+    
+    // Provide user-friendly error messages
+    let userMessage = error.message;
+    if (error.name === 'NotAllowedError') {
+      userMessage = 'Permission denied. Please allow screen/camera access.';
+    } else if (error.name === 'NotFoundError') {
+      userMessage = 'No camera or screen found.';
+    } else if (error.name === 'NotReadableError') {
+      userMessage = 'Camera or screen is already in use by another application.';
+    } else if (error.name === 'OverconstrainedError') {
+      userMessage = 'Camera settings not supported.';
+    } else if (error.name === 'SecurityError') {
+      userMessage = 'Recording blocked for security reasons.';
+    }
+    
+    return { success: false, error: userMessage };
+  }
+}
+
+// Create circular camera overlay (Loom-style)
+function createCameraOverlay(cameraStream) {
+  // Remove existing overlay if any
+  removeCameraOverlay();
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'pm-camera-overlay';
+  
+  // Load saved position and size
+  chrome.storage.local.get(['cameraOverlaySize', 'cameraOverlayPosition'], (result) => {
+    const size = result.cameraOverlaySize || 150;
+    const position = result.cameraOverlayPosition || { bottom: 20, right: 20 };
+    
+    overlay.style.cssText = `
+      position: fixed;
+      bottom: ${position.bottom}px;
+      right: ${position.right}px;
+      width: ${size}px;
+      height: ${size}px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(76, 175, 80, 0.5);
+      z-index: 999999;
+      cursor: move;
+      border: 3px solid rgba(76, 175, 80, 0.8);
+    `;
+    
+    // Add hover effect to show it's interactive
+    overlay.addEventListener('mouseenter', () => {
+      overlay.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.9)';
+      overlay.style.borderColor = 'rgba(76, 175, 80, 1)';
+    });
+    overlay.addEventListener('mouseleave', () => {
+      overlay.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(76, 175, 80, 0.5)';
+      overlay.style.borderColor = 'rgba(76, 175, 80, 0.8)';
+    });
+  });
+  
+  const video = document.createElement('video');
+  video.srcObject = cameraStream;
+  video.autoplay = true;
+  video.muted = true;
+  video.style.cssText = `
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror the camera */
+    pointer-events: none;
+  `;
+  
+  // Add resize handle with better visibility
+  const resizeHandle = document.createElement('div');
+  resizeHandle.style.cssText = `
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    border-radius: 0 0 50% 0;
+    cursor: nwse-resize;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    user-select: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  `;
+  resizeHandle.innerHTML = '⇱';
+  resizeHandle.title = 'Drag to resize';
+  
+  // Add hover effect
+  resizeHandle.addEventListener('mouseenter', () => {
+    resizeHandle.style.background = 'linear-gradient(135deg, #5CBF60 0%, #55b059 100%)';
+    resizeHandle.style.transform = 'scale(1.1)';
+  });
+  resizeHandle.addEventListener('mouseleave', () => {
+    resizeHandle.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+    resizeHandle.style.transform = 'scale(1)';
+  });
+  
+  overlay.appendChild(video);
+  overlay.appendChild(resizeHandle);
+  document.body.appendChild(overlay);
+  
+  // Make it draggable
+  makeDraggable(overlay);
+  
+  // Make it resizable
+  makeResizable(overlay, resizeHandle);
+  
+  console.log('[Content] Camera overlay created');
+}
+
+// Remove camera overlay
+function removeCameraOverlay() {
+  const overlay = document.getElementById('pm-camera-overlay');
+  if (overlay) {
+    const video = overlay.querySelector('video');
+    if (video && video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+    }
+    overlay.remove();
+    console.log('[Content] Camera overlay removed');
+  }
+}
+
+// Make element draggable
+function makeDraggable(element) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  
+  element.onmousedown = dragMouseDown;
+  
+  function dragMouseDown(e) {
+    // Don't drag if clicking the resize handle
+    if (e.target.innerHTML === '⇱' || e.target.innerHTML === '⇲') return;
+    
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+  
+  function elementDrag(e) {
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    element.style.top = (element.offsetTop - pos2) + 'px';
+    element.style.left = (element.offsetLeft - pos1) + 'px';
+    element.style.bottom = 'auto';
+    element.style.right = 'auto';
+  }
+  
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+    
+    // Save position
+    const rect = element.getBoundingClientRect();
+    chrome.storage.local.set({
+      cameraOverlayPosition: {
+        bottom: window.innerHeight - rect.bottom,
+        right: window.innerWidth - rect.right
+      }
+    });
+  }
+}
+
+// Make element resizable
+function makeResizable(element, handle) {
+  let isResizing = false;
+  let startX, startY, startSize;
+
+  handle.onmousedown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    isResizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startSize = element.offsetWidth;
+    
+    document.onmousemove = resize;
+    document.onmouseup = stopResize;
+  };
+
+  function resize(e) {
+    if (!isResizing) return;
+    e.preventDefault();
+    
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+    const delta = Math.max(deltaX, deltaY);
+    
+    let newSize = startSize + delta;
+    newSize = Math.max(80, Math.min(400, newSize)); // Constrain between 80px and 400px
+    
+    element.style.width = newSize + 'px';
+    element.style.height = newSize + 'px';
+  }
+
+  function stopResize() {
+    if (!isResizing) return;
+    isResizing = false;
+    
+    // Save size
+    chrome.storage.local.set({
+      cameraOverlaySize: element.offsetWidth
+    });
+    
+    document.onmousemove = null;
+    document.onmouseup = null;
   }
 }
 
@@ -311,6 +659,23 @@ async function stopRecording() {
   });
 }
 
+// Initialize: Check if camera should be active on this tab
+(async () => {
+  const result = await chrome.storage.local.get(['cameraActive', 'recordingMode']);
+  if (result.cameraActive && (result.recordingMode === 'both' || result.recordingMode === 'camera')) {
+    console.log('[Content] Camera is active, creating overlay on page load');
+    try {
+      const cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 },
+        audio: false
+      });
+      createCameraOverlay(cameraStream);
+    } catch (error) {
+      console.error('[Content] Failed to create camera overlay on init:', error);
+    }
+  }
+})();
+
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('[Content] Received message:', request.action);
@@ -318,6 +683,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Ping check for content script availability
   if (request.action === 'ping') {
     sendResponse({ success: true });
+    return true;
+  }
+  
+  // Show camera overlay on this tab
+  if (request.action === 'showCameraOverlay') {
+    (async () => {
+      try {
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: false // No audio needed for overlay
+        });
+        createCameraOverlay(cameraStream);
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error('[Content] Failed to create camera overlay:', error);
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+    return true;
+  }
+  
+  // Extract job title
+  if (request.action === 'extractJobTitle') {
+    const title = extractJobTitle();
+    sendResponse({ title: title });
     return true;
   }
   
@@ -364,7 +754,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true; // Keep the message channel open for async response
   } else if (request.action === 'startRecording') {
-    startRecording().then(result => {
+    const mode = request.mode || 'screen';
+    startRecording(mode).then(result => {
       console.log('[Content] Recording started:', result);
       sendResponse(result);
     }).catch(error => {
@@ -372,9 +763,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: error.message });
     });
     return true;
-  } else if (request.action === 'stopRecording') {
+  } else if (request.action === 'stopRecording') {    
     stopRecording().then(result => {
       console.log('[Content] Recording stopped:', result);
+      // Clear camera active state and remove overlay after successful stop
+      chrome.storage.local.set({ cameraActive: false });
+      removeCameraOverlay();
       sendResponse(result);
     }).catch(error => {
       console.error('[Content] Error stopping recording:', error);

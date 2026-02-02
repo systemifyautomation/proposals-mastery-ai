@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Upload Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .test-section {
+      background: #f5f5f5;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+    button {
+      background: #14a800;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #108a00;
+    }
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    pre {
+      background: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 YouTube Upload Debugger</h1>
+  
+  <div class="test-section">
+    <h2>Step 1: Check Extension ID</h2>
+    <p id="extension-id">Extension ID: <strong>Loading...</strong></p>
+    <p><small>This should match the Application ID in your Google Cloud OAuth credentials</small></p>
+  </div>
+  
+  <div class="test-section">
+    <h2>Step 2: Check OAuth Configuration</h2>
+    <button id="check-oauth-btn">Check OAuth Config</button>
+    <div id="oauth-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Step 3: Test OAuth Token</h2>
+    <button id="test-token-btn">Get OAuth Token</button>
+    <div id="token-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Step 4: Create Test Recording</h2>
+    <button id="start-record-btn">Start 5-Second Test Recording</button>
+    <button id="stop-btn" disabled>Stop Recording</button>
+    <video id="preview" width="400" style="display:none;"></video>
+    <div id="recording-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Step 5: Test Upload</h2>
+    <button id="upload-btn" disabled>Upload Test Video</button>
+    <div id="upload-result"></div>
+  </div>
+
+  <script src="test-youtube.js"></script>
+</body>
+</html>
+</html>

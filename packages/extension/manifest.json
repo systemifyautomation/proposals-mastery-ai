@@ -2,23 +2,25 @@
   "manifest_version": 3,
   "name": "Proposals Mastery AI",
   "version": "0.1.0",
-  "description": "Analyze Upwork job descriptions and generate winning cover letters using your templates",
+  "description": "Record screen videos and upload to YouTube. Generate winning Upwork cover letters using your templates",
   "permissions": [
     "storage",
     "activeTab",
     "scripting",
     "identity",
     "downloads",
-    "nativeMessaging"
+    "nativeMessaging",
+    "notifications"
   ],
   "host_permissions": [
     "https://www.upwork.com/*",
     "https://www.googleapis.com/*"
   ],
   "oauth2": {
-    "client_id": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "client_id": "871777948344-fl29r4ke63jst5nu7o34tr611p4vh470.apps.googleusercontent.com",
     "scopes": [
-      "https://www.googleapis.com/auth/youtube.upload"
+      "https://www.googleapis.com/auth/youtube.upload",
+      "https://www.googleapis.com/auth/youtube"
     ]
   },
   "action": {

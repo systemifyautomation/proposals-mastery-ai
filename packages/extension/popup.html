@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proposals Mastery AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * {
       margin: 0;
@@ -12,28 +13,34 @@
     }
 
     body {
-      width: 400px;
-      min-height: 500px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #f9f9f9;
+      width: 420px;
+      min-height: 560px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      color: #1a1a2e;
     }
 
     .header {
-      background-color: #001e00;
+      background: linear-gradient(135deg, #14a800 0%, #0f8600 100%);
       color: white;
-      padding: 20px 16px;
+      padding: 24px 20px;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(20, 168, 0, 0.15);
+      position: relative;
     }
 
     .header h1 {
-      font-size: 18px;
+      font-size: 20px;
+      font-weight: 700;
       margin-bottom: 4px;
-      color: #14a800;
+      color: white;
+      letter-spacing: -0.5px;
     }
 
     .header p {
-      font-size: 12px;
-      color: #d4d4d4;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
     }
 
     .content {
@@ -41,107 +48,150 @@
     }
 
     .section {
-      background-color: white;
-      border-radius: 8px;
+      background: white;
+      border-radius: 12px;
       padding: 16px;
       margin-bottom: 12px;
-      border: 1px solid #e0e0e0;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
 
     .section h2 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #001e00;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .template-select {
       width: 100%;
-      padding: 10px;
-      border: 2px solid #d4d4d4;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 10px 12px;
+      border: 2px solid #e8ecf1;
+      border-radius: 8px;
+      font-size: 14px;
       background-color: white;
       cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .template-select:hover {
+      border-color: #14a800;
+      background-color: #f9fdf9;
     }
 
     .template-select:focus {
       outline: none;
       border-color: #14a800;
+      box-shadow: 0 0 0 3px rgba(20, 168, 0, 0.1);
     }
 
     .btn {
       width: 100%;
-      padding: 12px;
+      padding: 11px 14px;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
     }
 
     .btn-primary {
-      background-color: #14a800;
+      background: linear-gradient(135deg, #14a800 0%, #0f8600 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(20, 168, 0, 0.25);
     }
 
     .btn-primary:hover:not(:disabled) {
-      background-color: #108a00;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(20, 168, 0, 0.35);
     }
 
     .btn-secondary {
-      background-color: #f0f0f0;
-      color: #001e00;
-      border: 1px solid #d4d4d4;
+      background-color: #f5f7fa;
+      color: #1a1a2e;
+      border: 2px solid #e8ecf1;
     }
 
     .btn-secondary:hover:not(:disabled) {
-      background-color: #e0e0e0;
+      background-color: #e8ecf1;
+      border-color: #d4dae0;
     }
 
     .btn:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      transform: none !important;
     }
 
     .status {
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
       text-align: center;
       display: none;
+      font-weight: 500;
     }
 
     .status.success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #81c784;
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #b1dfbb;
     }
 
     .status.error {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 1px solid #f1b0b7;
     }
 
     .status.info {
-      background-color: #e3f2fd;
-      color: #1565c0;
-      border: 1px solid #90caf9;
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border: 1px solid #abdde5;
     }
 
     .instructions {
-      font-size: 12px;
-      color: #6e6e6e;
-      line-height: 1.6;
+      font-size: 13px;
+      color: #5a5a6e;
+      line-height: 1.7;
     }
 
     .instructions ol {
       margin-left: 20px;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .instructions li {
@@ -150,8 +200,8 @@
 
     .divider {
       height: 1px;
-      background-color: #e0e0e0;
-      margin: 16px 0;
+      background: linear-gradient(to right, transparent, #e8ecf1, transparent);
+      margin: 14px 0;
     }
 
     .recording-controls {
@@ -165,27 +215,29 @@
     }
 
     #recording-status {
-      margin-top: 12px;
-      padding: 8px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      font-size: 11px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      border-radius: 8px;
+      font-size: 12px;
       text-align: center;
+      font-weight: 500;
     }
 
     .tooltip {
       position: absolute;
-      background-color: #333;
+      background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
       color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
+      padding: 10px 14px;
+      border-radius: 8px;
       font-size: 12px;
       z-index: 1000;
       max-width: 250px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.2s;
+      font-weight: 500;
     }
 
     .tooltip.show {
@@ -197,35 +249,41 @@
       position: absolute;
       top: 100%;
       left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
+      margin-left: -6px;
+      border-width: 6px;
       border-style: solid;
-      border-color: #333 transparent transparent transparent;
+      border-color: #1a1a2e transparent transparent transparent;
     }
 
     .tooltip.error {
-      background-color: #c62828;
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
     }
 
     .tooltip.error::after {
-      border-color: #c62828 transparent transparent transparent;
+      border-color: #c82333 transparent transparent transparent;
     }
 
     .settings-btn {
       position: absolute;
-      top: 20px;
+      top: 24px;
       right: 20px;
-      background: transparent;
-      border: none;
-      font-size: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
       cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.2s, transform 0.2s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .settings-btn:hover {
-      opacity: 1;
-      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.25);
+      transform: rotate(90deg);
     }
 
     .header {
@@ -234,25 +292,292 @@
 
     .video-link {
       display: block;
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      background-color: #f5f5f5;
-      border: 1px solid #d4d4d4;
-      border-radius: 4px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      border: 2px solid #e8ecf1;
+      border-radius: 8px;
       text-decoration: none;
-      color: #001e00;
-      font-size: 12px;
-      transition: background-color 0.2s;
+      color: #1a1a2e;
+      font-size: 13px;
+      transition: all 0.2s;
+      font-weight: 500;
     }
 
     .video-link:hover {
-      background-color: #e8f5e9;
+      background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
       border-color: #14a800;
+      transform: translateX(4px);
     }
 
     .video-link::before {
       content: '🔗 ';
-      margin-right: 4px;
+      margin-right: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid #e8ecf1;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+      font-weight: 500;
+      background: white;
+    }
+
+    .input-field:hover {
+      border-color: #14a800;
+      background-color: #f9fdf9;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #14a800;
+      box-shadow: 0 0 0 3px rgba(20, 168, 0, 0.1);
+    }
+
+    .input-label {
+      display: block;
+      font-size: 13px;
+      color: #5a5a6e;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .radio-option {
+      flex: 1;
+      position: relative;
+    }
+
+    .radio-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .radio-label {
+      display: block;
+      padding: 10px;
+      background: #f5f7fa;
+      border: 2px solid #e8ecf1;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .radio-option input[type="radio"]:checked + .radio-label {
+      background: linear-gradient(135deg, #14a800 0%, #0f8600 100%);
+      color: white;
+      border-color: #14a800;
+      box-shadow: 0 2px 8px rgba(20, 168, 0, 0.25);
+    }
+
+    .radio-label:hover {
+      border-color: #14a800;
+      transform: translateY(-2px);
+    }
+
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    /* Simple 2D Icons */
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .icon-document::before {
+      content: '�';
+    }
+
+    .icon-video::before {
+      content: '▶';
+    }
+
+    .icon-play::before {
+      content: '▶';
+    }
+
+    .icon-upload::before {
+      content: '↑';
+    }
+
+    .icon-check::before {
+      content: '✓';
+      font-weight: bold;
+    }
+
+    .icon-link::before {
+      content: '⧉';
+    }
+
+    .icon-view::before {
+      content: '➚';
+    }
+
+    .icon-trash::before {
+      content: '🗑';
+    }
+
+    .icon-screen::before {
+      content: '▭';
+    }
+
+    .icon-camera::before {
+      content: '📷';
+    }
+
+    .icon-sparkles::before {
+      content: '✦';
+    }
+
+    .icon-settings::before {
+      content: '⚙';
+      color: #000;
+    }
+
+    .icon-info::before {
+      content: 'ⓘ';
+    }
+
+    /* Recording section improvements */
+    .recording-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .recording-status-card {
+      background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
+      border: 2px solid #14a800;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .recording-status-card.uploading {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+      border-color: #ffc107;
+    }
+
+    .recording-status-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #14a800;
+    }
+
+    .recording-status-card.uploading .recording-status-icon {
+      color: #ffc107;
+    }
+
+    .recording-status-text {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .recording-status-time {
+      font-size: 11px;
+      color: #5a5a6e;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .video-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f5f7fa;
+      border: 2px solid #e8ecf1;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .video-item:hover {
+      border-color: #14a800;
+      background: #f9fdf9;
+    }
+
+    .video-icon {
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #14a800;
+      flex-shrink: 0;
+    }
+
+    .video-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .video-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a2e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      color: #5a5a6e;
+    }
+
+    .icon-btn:hover {
+      background: #14a800;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
     }
   </style>
 </head>
@@ -260,40 +585,64 @@
   <div class="header">
     <h1>Proposals Mastery AI</h1>
     <p>Chrome Extension</p>
-    <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
+    <button id="settings-btn" class="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
   </div>
 
   <div class="content">
     <div id="status" class="status"></div>
 
     <div class="section">
-      <h2>📝 Select Your Template</h2>
+      <h2><i class="fas fa-book icon"></i>Select Your Template</h2>
       <select id="template-select" class="template-select">
         <option value="">Loading templates...</option>
       </select>
     </div>
 
-    <button id="fill-btn" class="btn btn-primary">✨ Generate & Auto-Fill</button>
+    <button id="fill-btn" class="btn btn-primary"><i class="fas fa-magic icon"></i>Generate & Auto-Fill</button>
 
     <div class="divider"></div>
 
     <div class="section">
-      <h2>🎥 Record & Upload to YouTube</h2>
-      <div class="recording-controls">
-        <button id="start-record-btn" class="btn btn-secondary">▶ Start Recording</button>
-        <button id="upload-youtube-btn" class="btn btn-primary" disabled>📤 Upload to YouTube</button>
-      </div>
-      <div id="recording-status" style="display: none;"></div>
-      <div id="video-links" style="display: none; margin-top: 12px;">
-        <div style="font-size: 12px; color: #6e6e6e; margin-bottom: 8px;">📹 Your Recordings:</div>
-        <div id="links-container"></div>
+      <h2><i class="fas fa-video icon"></i>Record & Upload to YouTube</h2>
+      <div class="recording-section">
+        <div class="field-group">
+          <label class="input-label">Video Title</label>
+          <input type="text" id="video-title" class="input-field" placeholder="Auto-filled from job title...">
+        </div>
+        <div class="field-group">
+          <label class="input-label">Recording Mode</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="mode-screen" name="recording-mode" value="screen" checked>
+              <label for="mode-screen" class="radio-label"><i class="fas fa-desktop icon"></i>Screen</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="mode-camera" name="recording-mode" value="camera">
+              <label for="mode-camera" class="radio-label"><i class="fas fa-camera icon"></i>Camera</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="mode-both" name="recording-mode" value="both">
+              <label for="mode-both" class="radio-label"><i class="fas fa-video icon"></i>Both</label>
+            </div>
+          </div>
+        </div>
+        <div id="recording-status" style="display: none;"></div>
+        <div id="video-links" style="display: none;">
+          <div id="links-container"></div>
+        </div>
+        <div class="action-buttons">
+          <button id="start-record-btn" class="btn btn-secondary"><i class="fas fa-circle icon"></i>Start Recording</button>
+        </div>
+        <button id="cancel-upload-btn" class="btn btn-secondary" style="display: none;"><i class="fas fa-times icon"></i>Cancel Upload</button>
+        <button id="clear-recording-btn" class="btn btn-secondary" style="display: none; margin-top: 10px;"><i class="fas fa-trash icon"></i>Clear & Start New</button>
+        <p style="margin-top: 10px; font-size: 12px; color: #666; text-align: center;"><i class="fas fa-info-circle"></i> Videos upload to YouTube automatically when you stop recording</p>
       </div>
     </div>
 
     <div class="divider"></div>
 
     <div class="section">
-      <h2>🚀 How to Use</h2>
+      <h2><i class="fas fa-info-circle icon"></i>How to Use</h2>
       <div class="instructions">
         <ol>
           <li>Select a template above</li>
