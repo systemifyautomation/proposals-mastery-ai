@@ -148,6 +148,28 @@
       background-color: #e8ecf1;
       border-color: #d4dae0;
     }
+    
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    
+    .btn-row .btn {
+      margin-bottom: 0;
+      flex: 1;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 53, 69, 0.35);
+    }
 
     .btn:disabled {
       opacity: 0.5;
@@ -630,11 +652,11 @@
         <div id="video-links" style="display: none;">
           <div id="links-container"></div>
         </div>
-        <div class="action-buttons">
+        <div class="btn-row">
           <button id="start-record-btn" class="btn btn-secondary"><i class="fas fa-circle icon"></i>Start Recording</button>
+          <button id="clear-recording-btn" class="btn btn-danger" style="display: none;"><i class="fas fa-trash icon"></i>Clear & New</button>
         </div>
         <button id="cancel-upload-btn" class="btn btn-secondary" style="display: none;"><i class="fas fa-times icon"></i>Cancel Upload</button>
-        <button id="clear-recording-btn" class="btn btn-secondary" style="display: none; margin-top: 10px;"><i class="fas fa-trash icon"></i>Clear & Start New</button>
         <p style="margin-top: 10px; font-size: 12px; color: #666; text-align: center;"><i class="fas fa-info-circle"></i> Videos upload to YouTube automatically when you stop recording</p>
       </div>
     </div>
