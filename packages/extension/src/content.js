@@ -24,6 +24,7 @@ function waitForElement(selector, maxAttempts = 20) {
 let mediaRecorder = null;
 let recordedChunks = [];
 let recordedVideoBlob = null;
+let activeVideoStream = null; // module-level ref so streams can always be stopped
 
 // Extract job details from the application page
 function extractJobDetails() {
@@ -266,7 +267,7 @@ async function startRecording(mode = 'screen') {
     if (mode === 'camera' || mode === 'both') {
       try {
         const cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720 },
+          video: { width: 320, height: 240, frameRate: 15 },
           audio: mode === 'camera' // Only use camera audio if camera-only
         });
         console.log('[Content] Camera stream obtained');
@@ -306,7 +307,8 @@ async function startRecording(mode = 'screen') {
     if (!videoStream) {
       throw new Error('Failed to obtain video stream');
     }
-    
+
+    activeVideoStream = videoStream; // save so it can be stopped from any code path
     recordedChunks = [];
     
     // Find supported MIME type
@@ -339,10 +341,17 @@ async function startRecording(mode = 'screen') {
     
     mediaRecorder.onstop = async () => {
       console.log('[Content] MediaRecorder stopped by user (browser button)');
-      
-      // Immediately remove camera overlay and clear active state
+
+      // Stop the screen/video stream immediately so the browser recording indicator disappears
+      if (activeVideoStream) {
+        activeVideoStream.getTracks().forEach(track => track.stop());
+        activeVideoStream = null;
+      }
+
+      // Remove camera overlay on this tab and broadcast to all other tabs
       chrome.storage.local.set({ cameraActive: false });
       removeCameraOverlay();
+      chrome.runtime.sendMessage({ action: 'hideCameraOnAllTabs' });
       console.log('[Content] Camera overlay removed immediately after recording stopped');
       
       // Create blob from chunks
@@ -379,11 +388,9 @@ async function startRecording(mode = 'screen') {
         console.error('[Content] Error converting/uploading video:', error);
       }
       
-      // Clean up stream
-      videoStream.getTracks().forEach(track => track.stop());
     };
-    
-    mediaRecorder.start();
+
+    mediaRecorder.start(1000); // 1-second timeslice reduces memory buffering
     console.log('[Content] Recording started successfully');
     return { success: true, message: 'Recording started' };
   } catch (error) {
@@ -633,6 +640,12 @@ async function stopRecording() {
     console.log('[Content] Setting up onstop handler');
     // Set up the handler BEFORE stopping
     mediaRecorder.onstop = () => {
+      // Stop the screen/video stream so browser recording indicator goes away
+      if (activeVideoStream) {
+        activeVideoStream.getTracks().forEach(track => track.stop());
+        activeVideoStream = null;
+      }
+
       console.log('[Content] onstop fired, chunks:', recordedChunks.length);
       const blob = new Blob(recordedChunks, { type: 'video/webm' });
       console.log('[Content] Blob created, size:', blob.size);
@@ -666,7 +679,7 @@ async function stopRecording() {
     console.log('[Content] Camera is active, creating overlay on page load');
     try {
       const cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720 },
+        video: { width: 320, height: 240, frameRate: 15 },
         audio: false
       });
       createCameraOverlay(cameraStream);
@@ -686,12 +699,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
   
+  // Hide camera overlay on this tab (broadcast from background)
+  if (request.action === 'hideCameraOverlay') {
+    removeCameraOverlay();
+    sendResponse({ success: true });
+    return true;
+  }
+
   // Show camera overlay on this tab
   if (request.action === 'showCameraOverlay') {
     (async () => {
       try {
         const cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720 },
+          video: { width: 320, height: 240, frameRate: 15 },
           audio: false // No audio needed for overlay
         });
         createCameraOverlay(cameraStream);
@@ -763,12 +783,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: error.message });
     });
     return true;
-  } else if (request.action === 'stopRecording') {    
+  } else if (request.action === 'stopRecording') {
     stopRecording().then(result => {
       console.log('[Content] Recording stopped:', result);
-      // Clear camera active state and remove overlay after successful stop
+      // Clear camera active state and remove overlay on this tab
       chrome.storage.local.set({ cameraActive: false });
       removeCameraOverlay();
+      // Broadcast removal to all other tabs
+      chrome.runtime.sendMessage({ action: 'hideCameraOnAllTabs' });
       sendResponse(result);
     }).catch(error => {
       console.error('[Content] Error stopping recording:', error);

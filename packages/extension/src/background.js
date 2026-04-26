@@ -283,6 +283,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (request.action === 'hideCameraOnAllTabs') {
+    // Broadcast camera removal to all tabs so every open camera stream is released
+    (async () => {
+      try {
+        console.log('[Background] Broadcasting camera overlay removal to all tabs');
+        const tabs = await chrome.tabs.query({});
+        for (const tab of tabs) {
+          try {
+            await chrome.tabs.sendMessage(tab.id, { action: 'hideCameraOverlay' });
+          } catch (err) {
+            // Tab may not have the content script injected – that's fine
+          }
+        }
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error('[Background] Failed to broadcast camera removal:', error);
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+    return true;
+  }
   
   if (request.action === 'cancelUpload') {
     // Cancel ongoing upload
