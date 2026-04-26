@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Setup Diagnostics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #14a800;
+    }
+    .test {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #ccc;
+    }
+    .test.pass {
+      border-color: #14a800;
+    }
+    .test.fail {
+      border-color: #d32f2f;
+    }
+    .test.warn {
+      border-color: #ff9800;
+    }
+    .status {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    button {
+      background: #14a800;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #108a00;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 YouTube Setup Diagnostics</h1>
+  <p>This tool helps diagnose YouTube upload issues. Click "Run Diagnostics" to check your setup.</p>
+  
+  <button onclick="runDiagnostics()">Run Diagnostics</button>
+  <button onclick="testOAuth()">Test OAuth</button>
+  <button onclick="clearOAuth()">Clear OAuth Cache</button>
+  
+  <div id="results"></div>
+
+  <script>
+    async function runDiagnostics() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<h2>Running diagnostics...</h2>';
+      
+      const tests = [];
+      
+      // Test 1: Check manifest
+      try {
+        const manifest = chrome.runtime.getManifest();
+        
+        // Check OAuth config
+        if (manifest.oauth2) {
+          const clientId = manifest.oauth2.client_id;
+          if (clientId && clientId !== 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+            tests.push({
+              name: 'OAuth Client ID',
+              status: 'pass',
+              message: `Client ID configured: ${clientId.substring(0, 20)}...`
+            });
+          } else {
+            tests.push({
+              name: 'OAuth Client ID',
+              status: 'fail',
+              message: 'Client ID not configured in manifest.json. Please run setup-youtube.ps1'
+            });
+          }
+          
+          // Check scopes
+          const hasYouTubeScope = manifest.oauth2.scopes?.includes('https://www.googleapis.com/auth/youtube.upload');
+          tests.push({
+            name: 'YouTube Upload Scope',
+            status: hasYouTubeScope ? 'pass' : 'fail',
+            message: hasYouTubeScope ? 'YouTube upload scope present' : 'Missing YouTube upload scope'
+          });
+        } else {
+          tests.push({
+            name: 'OAuth Configuration',
+            status: 'fail',
+            message: 'No oauth2 configuration found in manifest.json'
+          });
+        }
+        
+        // Check permissions
+        const hasIdentity = manifest.permissions?.includes('identity');
+        tests.push({
+          name: 'Identity Permission',
+          status: hasIdentity ? 'pass' : 'fail',
+          message: hasIdentity ? 'Identity permission granted' : 'Missing identity permission'
+        });
+        
+        // Check host permissions
+        const hasGoogleAPI = manifest.host_permissions?.some(p => p.includes('googleapis.com'));
+        tests.push({
+          name: 'Google API Access',
+          status: hasGoogleAPI ? 'pass' : 'fail',
+          message: hasGoogleAPI ? 'Google API host permission granted' : 'Missing googleapis.com host permission'
+        });
+        
+        // Extension ID
+        tests.push({
+          name: 'Extension ID',
+          status: 'pass',
+          message: `Extension ID: ${chrome.runtime.id}`
+        });
+        
+      } catch (error) {
+        tests.push({
+          name: 'Manifest Check',
+          status: 'fail',
+          message: 'Error reading manifest: ' + error.message
+        });
+      }
+      
+      // Test 2: Check storage
+      try {
+        const data = await new Promise(resolve => {
+          chrome.storage.local.get(['storageLocation'], resolve);
+        });
+        tests.push({
+          name: 'Storage Configuration',
+          status: 'pass',
+          message: `Storage location: ${data.storageLocation || 'local (default)'}`
+        });
+      } catch (error) {
+        tests.push({
+          name: 'Storage Check',
+          status: 'warn',
+          message: 'Could not read storage settings'
+        });
+      }
+      
+      // Display results
+      let html = '<h2>Diagnostic Results</h2>';
+      tests.forEach(test => {
+        html += `
+          <div class="test ${test.status}">
+            <span class="status">${test.status === 'pass' ? '✅' : test.status === 'fail' ? '❌' : '⚠️'}</span>
+            <strong>${test.name}:</strong> ${test.message}
+          </div>
+        `;
+      });
+      
+      // Add instructions if failures
+      const failures = tests.filter(t => t.status === 'fail');
+      if (failures.length > 0) {
+        html += `
+          <div class="test fail">
+            <h3>❌ Setup Incomplete</h3>
+            <p>You have ${failures.length} issue(s) to fix:</p>
+            <ol>
+              <li>Run <code>setup-youtube.ps1</code> in the extension directory</li>
+              <li>Or manually configure OAuth in <code>manifest.json</code></li>
+              <li>Rebuild the extension: <code>npm run build</code></li>
+              <li>Reload the extension in chrome://extensions/</li>
+            </ol>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="test pass">
+            <h3>✅ Setup Complete!</h3>
+            <p>Your YouTube configuration looks good. Try uploading a video!</p>
+            <p>Click "Test OAuth" above to verify you can authenticate.</p>
+          </div>
+        `;
+      }
+      
+      results.innerHTML = html;
+    }
+    
+    async function testOAuth() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<h2>Testing OAuth...</h2>';
+      
+      try {
+        const token = await new Promise((resolve, reject) => {
+          chrome.identity.getAuthToken({ interactive: true }, (token) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve(token);
+            }
+          });
+        });
+        
+        results.innerHTML = `
+          <div class="test pass">
+            <h3>✅ OAuth Success!</h3>
+            <p>Successfully obtained OAuth token.</p>
+            <p><strong>Token preview:</strong> ${token.substring(0, 30)}...</p>
+            <p>You're ready to upload videos to YouTube!</p>
+          </div>
+        `;
+      } catch (error) {
+        results.innerHTML = `
+          <div class="test fail">
+            <h3>❌ OAuth Failed</h3>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <p><strong>Common causes:</strong></p>
+            <ul>
+              <li>Client ID not configured correctly</li>
+              <li>Extension ID doesn't match OAuth credentials</li>
+              <li>OAuth consent screen not configured</li>
+              <li>User not added as test user</li>
+            </ul>
+            <p>See YOUTUBE_TESTING.md for setup instructions.</p>
+          </div>
+        `;
+      }
+    }
+    
+    async function clearOAuth() {
+      try {
+        const token = await new Promise((resolve, reject) => {
+          chrome.identity.getAuthToken({ interactive: false }, (token) => {
+            if (chrome.runtime.lastError) {
+              resolve(null);
+            } else {
+              resolve(token);
+            }
+          });
+        });
+        
+        if (token) {
+          await new Promise((resolve) => {
+            chrome.identity.removeCachedAuthToken({ token }, resolve);
+          });
+          alert('✅ OAuth cache cleared! Try authenticating again.');
+        } else {
+          alert('ℹ️ No cached token found.');
+        }
+      } catch (error) {
+        alert('❌ Error clearing cache: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>

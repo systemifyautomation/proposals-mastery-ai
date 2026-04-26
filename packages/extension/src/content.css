@@ -1,0 +1,40 @@
+/* Floating button styles */
+.proposals-mastery-generate-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  background-color: #14a800;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(20, 168, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.proposals-mastery-generate-btn:hover:not(:disabled) {
+  background-color: #108a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(20, 168, 0, 0.4);
+}
+
+.proposals-mastery-generate-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.proposals-mastery-generate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.proposals-mastery-generate-btn svg {
+  flex-shrink: 0;
+}
+

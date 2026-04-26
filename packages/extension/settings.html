@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposals Mastery AI - Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #001e00 0%, #14a800 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #001e00;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #14a800;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #d4d4d4;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      color: #001e00;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #14a800;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #d4d4d4;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #14a800;
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid #d4d4d4;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .radio-option:hover {
+      border-color: #14a800;
+      background: #f5fff5;
+    }
+
+    .radio-option input[type="radio"] {
+      width: auto;
+      margin-right: 10px;
+    }
+
+    .radio-option.selected {
+      border-color: #14a800;
+      background: #e8f5e9;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #14a800;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #108a00;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #001e00;
+      border: 2px solid #d4d4d4;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-danger {
+      background: #c62828;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #a52020;
+    }
+
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .template-item {
+      padding: 16px;
+      border: 2px solid #d4d4d4;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .template-item h3 {
+      font-size: 16px;
+      color: #001e00;
+      margin-bottom: 4px;
+    }
+
+    .template-item p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #81c784;
+    }
+
+    .status-message.error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .youtube-setup {
+      background: #fff3e0;
+      border: 1px solid #ffb74d;
+      padding: 16px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    .youtube-setup h4 {
+      color: #e65100;
+      margin-bottom: 8px;
+    }
+
+    .youtube-setup ol {
+      margin-left: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .youtube-setup a {
+      color: #14a800;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .youtube-setup a:hover {
+      text-decoration: underline;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    #youtube-credentials {
+      display: none;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ Proposals Mastery AI Settings</h1>
+      <p>Configure your templates and recording preferences</p>
+    </div>
+
+    <div class="content">
+      <div id="status" class="status-message"></div>
+
+      <!-- Storage Settings -->
+      <div class="section">
+        <h2>💾 Recording Storage</h2>
+        <div class="form-group">
+          <label>Where do you want to save your recordings?</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="storage" value="local">
+              <div>
+                <strong>Local Download</strong>
+                <p class="help-text">Save recordings to your computer</p>
+              </div>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="storage" value="youtube">
+              <div>
+                <strong>YouTube Upload</strong>
+                <p class="help-text">Upload as unlisted videos to your YouTube account</p>
+              </div>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="storage" value="both">
+              <div>
+                <strong>Both</strong>
+                <p class="help-text">Download locally and upload to YouTube</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div id="youtube-credentials">
+          <div class="youtube-setup">
+            <h4>📺 YouTube Setup Required</h4>
+            <p style="margin-bottom: 8px;">To upload to YouTube, you need to set up Google OAuth:</p>
+            <ol>
+              <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+              <li>Create a new project or select existing one</li>
+              <li>Enable YouTube Data API v3</li>
+              <li>Create OAuth 2.0 credentials (Desktop app)</li>
+              <li>Copy your Client ID below</li>
+            </ol>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label>Google OAuth Client ID</label>
+            <input type="text" id="youtube-client-id" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com">
+            <p class="help-text">See YOUTUBE_SETUP.md for detailed instructions</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates Section -->
+      <div class="section">
+        <h2>📝 Cover Letter Templates</h2>
+        <div id="template-list" class="template-list"></div>
+        <button id="add-template-btn" class="btn btn-secondary btn-small" style="margin-top: 12px;">
+          ➕ Add New Template
+        </button>
+      </div>
+
+      <!-- Template Editor (Hidden by default) -->
+      <div id="template-editor" class="section" style="display: none;">
+        <h2 id="editor-title">Create New Template</h2>
+        <div class="form-group">
+          <label>Template Name</label>
+          <input type="text" id="template-name" placeholder="e.g., Professional Template">
+        </div>
+        <div class="form-group">
+          <label>Template Content</label>
+          <textarea id="template-content" placeholder="Use placeholders like {{JOB_TITLE}}, {{NAME}}, {{BIO}}, etc."></textarea>
+          <p class="help-text">Available placeholders: {{JOB_TITLE}}, {{JOB_DESCRIPTION}}, {{SKILLS}}, {{NAME}}, {{TITLE}}, {{YEARS_EXPERIENCE}}, {{PORTFOLIO}}, {{BIO}}, {{PROJECTS}}, {{ACHIEVEMENTS}}</p>
+        </div>
+        <div class="button-group">
+          <button id="save-template-btn" class="btn btn-primary">💾 Save Template</button>
+          <button id="cancel-template-btn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="button-group">
+        <button id="save-settings-btn" class="btn btn-primary">✅ Save Settings</button>
+      </div>
+
+      <!-- Storage Info & Clear Data -->
+      <div class="section" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+        <h2>🗑️ Data Management</h2>
+        <div class="form-group">
+          <label>Settings Storage Location</label>
+          <p id="storage-path" style="font-size: 12px; color: #666; padding: 8px; background: #f5f5f5; border-radius: 4px;">Loading...</p>
+        </div>
+        <button id="clear-data-btn" class="btn btn-danger">🗑️ Clear All Data</button>
+        <p class="help-text">This will permanently delete all templates, settings, and preferences. Use with caution!</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="storage.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
